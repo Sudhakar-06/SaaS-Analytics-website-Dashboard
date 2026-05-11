@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSE — Analytics Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+[data-theme="dark"]{
+  --bg:#09090b;--surface:#111113;--card:#18181b;--elevated:#1c1c1f;
+  --border:#27272a;--border2:rgba(255,255,255,0.06);
+  --text:#fafafa;--text2:#a1a1aa;--text3:#52525b;
+  --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.15);
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);
+  --orange:#f97316;--orange-bg:rgba(249,115,22,0.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);
+  --yellow:#eab308;
+}
+[data-theme="light"]{
+  --bg:#f4f4f5;--surface:#ffffff;--card:#ffffff;--elevated:#f9f9f9;
+  --border:#e4e4e7;--border2:rgba(0,0,0,0.06);
+  --text:#09090b;--text2:#71717a;--text3:#a1a1aa;
+  --accent:#6366f1;--accent2:#4f46e5;--accent-glow:rgba(99,102,241,0.1);
+  --green:#16a34a;--green-bg:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-bg:rgba(220,38,38,0.1);
+  --orange:#ea580c;--orange-bg:rgba(234,88,12,0.1);
+  --blue:#2563eb;--blue-bg:rgba(37,99,235,0.1);
+  --yellow:#ca8a04;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;overflow-x:hidden;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* APP SHELL */
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;transition:background .3s,border-color .3s}
+.sb-header{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-logo{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:'Geist Mono',monospace;color:white;flex-shrink:0}
+.sb-brand{font-size:15px;font-weight:700;letter-spacing:.5px}
+.sb-brand span{color:var(--accent)}
+.sb-section{padding:8px 8px 4px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;margin:1px 8px;position:relative}
+.sb-item:hover{background:var(--border2);color:var(--text)}
+.sb-item.active{background:var(--accent-glow);color:var(--accent)}
+.sb-item .sb-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;background:var(--accent);color:white}
+.sb-badge.red{background:var(--red)}
+.sb-workspace{padding:8px;margin-top:auto;border-top:1px solid var(--border)}
+.ws-card{background:var(--border2);border-radius:10px;padding:12px;cursor:pointer;transition:background .2s}
+.ws-card:hover{background:var(--border)}
+.ws-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ws-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white}
+.ws-name{font-size:12px;font-weight:600}
+.ws-role{font-size:10px;color:var(--text3)}
+.ws-usage{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.ws-fill{height:100%;background:var(--accent);border-radius:2px;width:68%;transition:width .5s ease}
+.ws-usage-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px}
+
+/* TOP BAR */
+.main-wrap{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;transition:background .3s}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}
+.breadcrumb .bc-sep{color:var(--text3)}
+.breadcrumb .bc-cur{color:var(--text);font-weight:500}
+.date-chip{font-size:12px;color:var(--text2);background:var(--border2);border:1px solid var(--border);padding:5px 12px;border-radius:6px;display:flex;align-items:center;gap:6px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{width:34px;height:34px;background:transparent;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;color:var(--text2);position:relative}
+.tb-btn:hover{background:var(--border2);color:var(--text)}
+.notif-badge{position:absolute;top:5px;right:5px;width:5px;height:5px;background:var(--red);border-radius:50%;border:1.5px solid var(--surface)}
+.theme-toggle{background:var(--border2)!important}
+.theme-toggle:hover{background:var(--accent-glow)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.tb-divider{width:1px;height:20px;background:var(--border)}
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .2s}
+.tb-user:hover{background:var(--border2)}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white}
+.tb-uname{font-size:13px;font-weight:500}
+
+/* CONTENT */
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.header-actions{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'Geist',sans-serif;transition:all .2s}
+.btn-ghost{background:var(--border2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--border);color:var(--text)}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{opacity:.85}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--border2);padding:3px;border-radius:10px;width:fit-content;margin-bottom:24px}
+.tab{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+
+/* METRIC CARDS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:transform .25s,border-color .25s,box-shadow .25s;cursor:default}
+.metric:hover{transform:translateY(-2px);border-color:rgba(99,102,241,.3);box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.metric-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.metric-label{font-size:12px;font-weight:500;color:var(--text2)}
+.metric-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.metric-val{font-size:26px;font-weight:700;letter-spacing:-1px;font-family:'Geist Mono',monospace;margin-bottom:6px}
+.metric-change{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500}
+.metric-change.up{color:var(--green)}
+.metric-change.dn{color:var(--red)}
+.metric-progress{height:3px;background:var(--border);border-radius:2px;margin-top:12px;overflow:hidden}
+.mp-fill{height:100%;border-radius:2px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.chart-title{font-size:14px;font-weight:600}
+.chart-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.chart-stat{text-align:right}
+.chart-stat-val{font-size:20px;font-weight:700;font-family:'Geist Mono',monospace;letter-spacing:-1px}
+.chart-stat-chg{font-size:12px;font-weight:500;color:var(--green)}
+.range-pills{display:flex;gap:4px}
+.pill{font-size:11px;padding:3px 10px;border-radius:100px;cursor:pointer;font-weight:500;transition:all .2s;color:var(--text2);background:transparent}
+.pill.active{background:var(--accent);color:white}
+.pill:hover:not(.active){background:var(--border2);color:var(--text)}
+canvas.chart{width:100%;display:block}
+
+/* DONUT */
+.donut-wrap{display:flex;flex-direction:column;align-items:center}
+#pieCanvas{display:block}
+.pie-legend{width:100%;display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.pie-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.pie-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pie-label{flex:1;color:var(--text2)}
+.pie-pct{font-family:'Geist Mono',monospace;font-size:11px;color:var(--text3)}
+.pie-val{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;margin-left:auto}
+
+/* BOTTOM ROW */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:0 0 12px;text-align:left;border-bottom:1px solid var(--border)}
+.data-table th:not(:first-child){text-align:right}
+.data-table td{padding:12px 0;border-bottom:1px solid var(--border2);vertical-align:middle}
+.data-table td:not(:first-child){text-align:right}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--border2)}
+.row-label{font-size:13px;font-weight:500}
+.row-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:100px}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-orange{background:var(--orange-bg);color:var(--orange)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.mono{font-family:'Geist Mono',monospace;font-size:12px}
+
+/* FUNNEL */
+.funnel{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.funnel-step{display:flex;flex-direction:column;gap:4px}
+.funnel-label{display:flex;justify-content:space-between;font-size:12px}
+.funnel-label span:first-child{color:var(--text2)}
+.funnel-label span:last-child{font-family:'Geist Mono',monospace;font-weight:600}
+.funnel-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.funnel-fill{height:100%;border-radius:4px;transition:width 1.5s ease}
+
+/* ACTIVITY */
+.activity{display:flex;flex-direction:column;gap:1px}
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.act-body{flex:1}
+.act-title{font-size:12px;font-weight:500}
+.act-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.act-time{font-size:11px;color:var(--text3);white-space:nowrap}
+
+/* LIVE INDICATOR */
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .5s ease both}
+.fade-1{animation-delay:.05s}
+.fade-2{animation-delay:.1s}
+.fade-3{animation-delay:.15s}
+.fade-4{animation-delay:.2s}
+
+@media(max-width:1100px){.charts-row{grid-template-columns:1fr}.bottom-row{grid-template-columns:1fr}}
+@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{display:none}.metrics{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-header">
+    <div class="sb-logo">P</div>
+    <div class="sb-brand">PUL<span>SE</span></div>
+  </div>
+  <div class="sb-section">Main</div>
+  <div class="sb-item active"><span class="sb-icon">⬡</span>Overview</div>
+  <div class="sb-item"><span class="sb-icon">📊</span>Analytics</div>
+  <div class="sb-item"><span class="sb-icon">👥</span>Audience</div>
+  <div class="sb-item"><span class="sb-icon">🔄</span>Conversions <span class="sb-badge">12</span></div>
+  <div class="sb-item"><span class="sb-icon">⚡</span>Real-time</div>
+  <div class="sb-section">Reports</div>
+  <div class="sb-item"><span class="sb-icon">📄</span>Revenue</div>
+  <div class="sb-item"><span class="sb-icon">🎯</span>Campaigns</div>
+  <div class="sb-item"><span class="sb-icon">🔔</span>Alerts <span class="sb-badge red">3</span></div>
+  <div class="sb-section">Settings</div>
+  <div class="sb-item"><span class="sb-icon">⚙️</span>Preferences</div>
+  <div class="sb-item"><span class="sb-icon">🔐</span>Integrations</div>
+  <div class="sb-workspace">
+    <div class="ws-card">
+      <div class="ws-top">
+        <div class="ws-avatar">AR</div>
+        <div><div class="ws-name">Alex R.</div><div class="ws-role">Admin · Pro Plan</div></div>
+      </div>
+      <div class="ws-usage"><div class="ws-fill"></div></div>
+      <div class="ws-usage-label"><span>68% used</span><span>32% left</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="breadcrumb"><span>Pulse</span><span class="bc-sep">/</span><span class="bc-cur">Overview</span></div>
+      <div class="date-chip">📅 Jan 1 – May 11, 2025</div>
+    </div>
+    <div class="topbar-right">
+      <div class="tb-btn" onclick="toggleTheme()" title="Toggle theme" class="theme-toggle">🌙</div>
+      <div class="tb-btn">🔍</div>
+      <div class="tb-btn">🔔<div class="notif-badge"></div></div>
+      <div class="tb-divider"></div>
+      <div class="tb-user">
+        <div class="tb-avatar">AR</div>
+        <span class="tb-uname">Alex R.</span>
+        <span style="font-size:10px;color:var(--text3)">▾</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header fade">
+      <div>
+        <div class="page-title">Analytics Overview</div>
+        <div class="page-sub"><span class="live-dot"></span>Live data · Updated 2 seconds ago</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost">⬇ Export</button>
+        <button class="btn btn-ghost">📅 Schedule</button>
+        <button class="btn btn-primary">+ New Report</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs fade fade-1">
+      <div class="tab active">Overview</div>
+      <div class="tab">Traffic</div>
+      <div class="tab">Conversions</div>
+      <div class="tab">Revenue</div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="metrics">
+      <div class="metric fade fade-1">
+        <div class="metric-top">
+          <div class="metric-label">Total Revenue</div>
+          <div class="metric-icon" style="background:var(--accent-glow)">💰</div>
+        </div>
+        <div class="metric-val" id="m1">$284,391</div>
+        <div class="metric-change up">▲ 18.2% vs last period</div>
+        <div class="metric-progress"><div class="mp-fill" style="width:82%;background:var(--accent)"></div></div>
+      </div>
+      <div class="metric fade fade-2">
+        <div class="metric-top">
+          <div class="metric-label">Active Users</div>
+          <div class="metric-icon" style="background:var(--green-bg)">👥</div>
+        </div>
+        <div class="metric-val">24,891</div>
+        <div class="metric-change up">▲ 12.4% vs last period</div>
+        <div class="metric-progress"><div class="mp-fill" style="width:74%;background:var(--green)"></div></div>
+      </div>
+      <div class="metric fade fade-3">
+        <div class="metric-top">
+          <div class="metric-label">Conversion Rate</div>
+          <div class="metric-icon" style="background:var(--orange-bg)">🎯</div>
+        </div>
+        <div class="metric-val">4.78%</div>
+        <div class="metric-change dn">▼ 0.3% vs last period</div>
+        <div class="metric-progress"><div class="mp-fill" style="width:48%;background:var(--orange)"></div></div>
+      </div>
+      <div class="metric fade fade-4">
+        <div class="metric-top">
+          <div class="metric-label">Avg. Session</div>
+          <div class="metric-icon" style="background:var(--blue-bg)">⏱</div>
+        </div>
+        <div class="metric-val">3m 42s</div>
+        <div class="metric-change up">▲ 8.1% vs last period</div>
+        <div class="metric-progress"><div class="mp-fill" style="width:62%;background:var(--blue)"></div></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="chart-card fade fade-2">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Revenue & Sessions</div>
+            <div class="chart-sub">Daily trend with projection</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div class="chart-stat-val">$284K</div>
+            <div class="range-pills">
+              <div class="pill active">7D</div>
+              <div class="pill">30D</div>
+              <div class="pill">90D</div>
+            </div>
+          </div>
+        </div>
+        <canvas class="chart" id="revenueChart" height="200"></canvas>
+      </div>
+      <div class="chart-card fade fade-3">
+        <div class="chart-header">
+          <div><div class="chart-title">Traffic Sources</div><div class="chart-sub">By channel</div></div>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="pieCanvas" width="140" height="140"></canvas>
+          <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-row">
+      <!-- TABLE -->
+      <div class="chart-card fade fade-2">
+        <div class="chart-header"><div><div class="chart-title">Top Pages</div><div class="chart-sub">By sessions this week</div></div><span style="font-size:12px;color:var(--accent);cursor:pointer">View all</span></div>
+        <table class="data-table">
+          <thead><tr><th>Page</th><th>Sessions</th><th>Bounce</th><th>Status</th></tr></thead>
+          <tbody id="pageTable"></tbody>
+        </table>
+      </div>
+
+      <!-- FUNNEL -->
+      <div class="chart-card fade fade-3">
+        <div class="chart-header"><div><div class="chart-title">Conversion Funnel</div><div class="chart-sub">Drop-off analysis</div></div></div>
+        <div class="funnel" id="funnelWrap"></div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="chart-card fade fade-4">
+        <div class="chart-header"><div><div class="chart-title">Live Events</div><div class="chart-sub"><span class="live-dot"></span>Streaming now</div></div></div>
+        <div class="activity" id="activityFeed"></div>
+      </div>
+    </div>
+
+  </div><!-- content -->
+</div><!-- main-wrap -->
+</div><!-- app -->
+
+<script>
+// THEME TOGGLE
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  document.querySelector('.theme-toggle').textContent=isDark?'🌙':'☀️';
+  setTimeout(()=>{drawRevenue();drawPie();},50);
+}
+
+// TABS
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');});
+});
+document.querySelectorAll('.pill').forEach(p=>{
+  p.addEventListener('click',()=>{p.closest('.range-pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');drawRevenue();});
+});
+document.querySelectorAll('.sb-item').forEach(i=>{
+  i.addEventListener('click',()=>{document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));i.classList.add('active');});
+});
+
+// HELPERS
+function getCSSVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()}
+
+// REVENUE CHART
+function drawRevenue(){
+  const c=document.getElementById('revenueChart');
+  if(!c)return;
+  c.width=c.offsetWidth;c.height=200;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  const pl=8,pr=8,pt=8,pb=28;
+  const cW=W-pl-pr,cH=H-pt-pb;
+  const n=30;
+  const rev=Array.from({length:n},(_,i)=>5000+Math.sin(i*.4)*2000+i*200+Math.random()*800);
+  const ses=Array.from({length:n},(_,i)=>800+Math.sin(i*.5)*300+i*12+Math.random()*100);
+  const border=getCSSVar('--border');
+  const accent=getCSSVar('--accent');
+  const green=getCSSVar('--green');
+  const text3=getCSSVar('--text3');
+  // Grid
+  ctx.strokeStyle=border;ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pt+cH*(i/4);ctx.beginPath();ctx.moveTo(pl,y);ctx.lineTo(W-pr,y);ctx.stroke();}
+  // Revenue area
+  const rMax=Math.max(...rev),rMin=Math.min(...rev);
+  const rPts=rev.map((v,i)=>({x:pl+(i/(n-1))*cW,y:pt+cH-(((v-rMin)/(rMax-rMin))*cH*.85+cH*.05)}));
+  const grad=ctx.createLinearGradient(0,pt,0,H-pb);
+  grad.addColorStop(0,accent+'33');grad.addColorStop(1,accent+'00');
+  ctx.beginPath();ctx.moveTo(rPts[0].x,H-pb);
+  for(let i=1;i<rPts.length;i++){const cp1x=(rPts[i-1].x+rPts[i].x)/2;ctx.bezierCurveTo(cp1x,rPts[i-1].y,cp1x,rPts[i].y,rPts[i].x,rPts[i].y);}
+  ctx.lineTo(rPts[n-1].x,H-pb);ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.moveTo(rPts[0].x,rPts[0].y);
+  for(let i=1;i<rPts.length;i++){const cp1x=(rPts[i-1].x+rPts[i].x)/2;ctx.bezierCurveTo(cp1x,rPts[i-1].y,cp1x,rPts[i].y,rPts[i].x,rPts[i].y);}
+  ctx.strokeStyle=accent;ctx.lineWidth=2;ctx.stroke();
+  // Sessions line
+  const sMax=Math.max(...ses),sMin=Math.min(...ses);
+  const sPts=ses.map((v,i)=>({x:pl+(i/(n-1))*cW,y:pt+cH-(((v-sMin)/(sMax-sMin))*cH*.5+cH*.1)}));
+  ctx.beginPath();ctx.moveTo(sPts[0].x,sPts[0].y);
+  for(let i=1;i<sPts.length;i++){const cp1x=(sPts[i-1].x+sPts[i].x)/2;ctx.bezierCurveTo(cp1x,sPts[i-1].y,cp1x,sPts[i].y,sPts[i].x,sPts[i].y);}
+  ctx.strokeStyle=green;ctx.lineWidth=1.5;ctx.globalAlpha=.7;ctx.stroke();ctx.globalAlpha=1;
+  // X labels
+  ctx.fillStyle=text3;ctx.font='10px Geist';ctx.textAlign='center';
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>{
+    const x=pl+(i/6)*cW;ctx.fillText(d,x,H-8);
+  });
+  // Tooltip dot on last point
+  const last=rPts[rPts.length-1];
+  ctx.beginPath();ctx.arc(last.x,last.y,4,0,Math.PI*2);ctx.fillStyle=accent;ctx.fill();
+  ctx.beginPath();ctx.arc(last.x,last.y,8,0,Math.PI*2);ctx.fillStyle=accent+'30';ctx.fill();
+}
+
+// PIE CHART
+const sources=[
+  {label:'Organic Search',pct:38,color:'#6366f1',val:'9,158'},
+  {label:'Direct',pct:24,color:'#22c55e',val:'5,784'},
+  {label:'Social Media',pct:20,color:'#06b6d4',val:'4,820'},
+  {label:'Email',pct:12,color:'#f97316',val:'2,892'},
+  {label:'Referral',pct:6,color:'#eab308',val:'1,446'},
+];
+
+function drawPie(){
+  const c=document.getElementById('pieCanvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,140,140);
+  const cx=70,cy=70,r=62,ir=42;
+  let start=-Math.PI/2;
+  sources.forEach(s=>{
+    const angle=(s.pct/100)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+angle);ctx.closePath();
+    ctx.fillStyle=s.color;ctx.fill();
+    start+=angle;
+  });
+  const card=getCSSVar('--card');
+  ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.fillStyle=card;ctx.fill();
+  const text=getCSSVar('--text');
+  const text2=getCSSVar('--text2');
+  ctx.fillStyle=text;ctx.font='700 14px Geist Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('24,891',cx,cy-7);
+  ctx.fillStyle=text2;ctx.font='500 9px Geist';ctx.fillText('SESSIONS',cx,cy+9);
+
+  const leg=document.getElementById('pieLegend');
+  leg.innerHTML=sources.map(s=>`
+    <div class="pie-row"><div class="pie-dot" style="background:${s.color}"></div>
+    <div class="pie-label">${s.label}</div>
+    <div class="pie-pct">${s.pct}%</div>
+    <div class="pie-val">${s.val}</div></div>`).join('');
+}
+
+// PAGE TABLE
+const pages=[
+  {page:'/dashboard',sub:'Main app view',sessions:'4,821',bounce:'24%',status:'badge-green',stext:'Healthy'},
+  {page:'/pricing',sub:'Pricing page',sessions:'3,291',bounce:'38%',status:'badge-blue',stext:'Good'},
+  {page:'/docs/api',sub:'API Reference',sessions:'2,840',bounce:'42%',status:'badge-blue',stext:'Good'},
+  {page:'/signup',sub:'Registration',sessions:'2,102',bounce:'61%',status:'badge-orange',stext:'Review'},
+  {page:'/blog/ai',sub:'Featured post',sessions:'1,820',bounce:'55%',status:'badge-orange',stext:'Review'},
+];
+document.getElementById('pageTable').innerHTML=pages.map(p=>`
+  <tr><td><div class="row-label mono">${p.page}</div><div class="row-sub">${p.sub}</div></td>
+  <td><div class="mono">${p.sessions}</div></td>
+  <td><div class="mono">${p.bounce}</div></td>
+  <td><span class="badge ${p.status}">${p.stext}</span></td></tr>`).join('');
+
+// FUNNEL
+const funnel=[
+  {label:'Visitors',val:'24,891',pct:100,color:'#6366f1'},
+  {label:'Signed Up',val:'8,421',pct:34,color:'#06b6d4'},
+  {label:'Activated',val:'4,210',pct:17,color:'#22c55e'},
+  {label:'Converted',val:'1,191',pct:4.8,color:'#f97316'},
+];
+document.getElementById('funnelWrap').innerHTML=funnel.map(f=>`
+  <div class="funnel-step">
+    <div class="funnel-label"><span>${f.label}</span><span>${f.val}</span></div>
+    <div class="funnel-bar"><div class="funnel-fill" style="width:${f.pct}%;background:${f.color}"></div></div>
+  </div>`).join('');
+
+// ACTIVITY FEED
+const actBase=[
+  {color:'#22c55e',title:'New signup — priya@example.com',meta:'Mumbai, IN · Organic Search'},
+  {color:'#6366f1',title:'Upgrade to Pro — team@acmecorp.com',meta:'New York, US · $199/mo'},
+  {color:'#06b6d4',title:'API key created — dev.user@orbit.io',meta:'Berlin, DE · Integrations'},
+  {color:'#f97316',title:'Trial expired — user@company.co',meta:'London, UK · No conversion'},
+  {color:'#22c55e',title:'New signup — carlos@startup.mx',meta:'Mexico City, MX · Email'},
+  {color:'#eab308',title:'Report exported — admin@bigbrand.com',meta:'Sydney, AU · Dashboard'},
+];
+function renderActivity(){
+  const times=['just now','1m ago','3m ago','5m ago','8m ago','12m ago'];
+  document.getElementById('activityFeed').innerHTML=actBase.map((a,i)=>`
+    <div class="act-item">
+      <div class="act-dot" style="background:${a.color}"></div>
+      <div class="act-body"><div class="act-title">${a.title}</div><div class="act-meta">${a.meta}</div></div>
+      <div class="act-time">${times[i]}</div>
+    </div>`).join('');
+}
+renderActivity();
+setInterval(()=>{
+  actBase.unshift(actBase.pop());
+  renderActivity();
+},4000);
+
+// LIVE REVENUE PULSE
+setInterval(()=>{
+  const el=document.getElementById('m1');
+  if(el){const base=284391;el.textContent='$'+(base+Math.floor((Math.random()-.5)*300)).toLocaleString();}
+},3500);
+
+// INIT
+setTimeout(()=>{drawRevenue();drawPie();},100);
+window.addEventListener('resize',()=>{drawRevenue();});
+</script>
+</body>
+</html>
